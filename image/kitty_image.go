@@ -11,7 +11,11 @@ import (
 	"github.com/BourgeoisBear/rasterm"
 )
 
+const KITTY_CLEAR_IMAGE = "\x1b_Ga=d\x1b\\"
+
+// TODO: ADD Support for Image Id
 type KittyImage struct {
+	Id        string
 	SrcWidth  uint64
 	SrcHeight uint64
 	Filepath  string
@@ -25,6 +29,11 @@ type KittyOpts struct {
 	MaintainAspectRatio bool
 }
 
+// TODO: Delete img with ID
+func ClearImage() string {
+	return KITTY_CLEAR_IMAGE
+}
+
 func Display(filePath string, kittyOpts KittyOpts) (string, error) {
 
 	fIn, err := os.Open(filePath)
@@ -33,7 +42,7 @@ func Display(filePath string, kittyOpts KittyOpts) (string, error) {
 	}
 	defer fIn.Close()
 
-	imgConfig, fmtName, err := image.DecodeConfig(fIn)
+	_, fmtName, err := image.DecodeConfig(fIn)
 	if err != nil {
 		return "", err
 	}
@@ -54,40 +63,10 @@ func Display(filePath string, kittyOpts KittyOpts) (string, error) {
 
 	opts := rasterm.KittyImgOpts{}
 
-	// ws := util.GetTermSize()
-	// xs := ws.Xpixel / ws.Col
-	// ys := ws.Ypixel / ws.Row
-	// if kittyOpts.DisplayHeight != 0 {
-	// 	opts.DstRows = kittyOpts.DisplayHeight / uint32(ys)
-
-	// 	if kittyOpts.MaintainAspectRatio {
-	// 		ratio := float32(imgConfig.Width) / float32(imgConfig.Height)
-	// 		newWidth := float32(kittyOpts.DisplayHeight) * ratio
-
-	// 		opts.DstCols = uint32(newWidth) / uint32(xs)
-	// 	}
-	// }
-	// if kittyOpts.DisplayWidth != 0 {
-	// 	opts.DstCols = kittyOpts.DisplayWidth / uint32(xs)
-
-	// 	if kittyOpts.MaintainAspectRatio {
-	// 		ratio := float32(imgConfig.Height) / float32(imgConfig.Width)
-	// 		newHeight := float32(kittyOpts.DisplayWidth) * ratio
-
-	// 		opts.DstRows = uint32(newHeight) / uint32(ys)
-	// 	}
-	// }
-	_ = imgConfig
-	// opts.CellOffsetX = kittyOpts.X
-	// opts.CellOffsetY = kittyOpts.Y
-
-	// fmt.Print(strings.Repeat())
 	opts.DstCols = kittyOpts.DisplayWidth
 	opts.DstRows = kittyOpts.DisplayHeight
 
 	bo := bytes.NewBufferString("")
-
-	// fmt.Fprint(bo, rasterm.ESC_ERASE_DISPLAY)
 
 	if fmtName == "png" {
 		eF := rasterm.KittyWritePNGLocal(bo, filePath, opts)
