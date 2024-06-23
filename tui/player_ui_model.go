@@ -80,13 +80,6 @@ func (m playerUIModel) View() string {
 func (m *playerUIModel) SetInfo(newMetaData SongInfo) {
 	m.MetaData = newMetaData
 
-	m.ArtistInfoStyle = m.ArtistInfoStyle.SetString(lipgloss.JoinVertical(
-		lipgloss.Top,
-
-		lipgloss.NewStyle().Foreground(lipgloss.Color("#FFFFFF")).PaddingBottom(1).Render(newMetaData.Title),
-		lipgloss.NewStyle().Foreground(lipgloss.Color("#777777")).Render(newMetaData.Artist),
-		lipgloss.NewStyle().Foreground(lipgloss.Color("#809bd1")).Render(newMetaData.Album),
-	))
 }
 
 func (m *playerUIModel) updateSize(width, height int) {
@@ -98,7 +91,15 @@ func (m *playerUIModel) updateSize(width, height int) {
 
 	m.progressPadding = lipgloss.NewStyle().Height(int(contentHeight - float32(lipgloss.Height(m.ArtistInfoStyle.Render())) - 0)).Render()
 
-	fmt.Printf(image.ClearImage())
+	m.ArtistInfoStyle = m.ArtistInfoStyle.SetString(lipgloss.JoinVertical(
+		lipgloss.Top,
+
+		lipgloss.NewStyle().MaxWidth(width-2-lipgloss.Width(m.AlbumArt.Render())-8).Foreground(lipgloss.Color("#FFFFFF")).PaddingBottom(1).Render(m.MetaData.Title),
+		lipgloss.NewStyle().MaxWidth(width-2-lipgloss.Width(m.AlbumArt.Render())-8).Foreground(lipgloss.Color("#777777")).Render(m.MetaData.Artist),
+		lipgloss.NewStyle().MaxWidth(width-2-lipgloss.Width(m.AlbumArt.Render())-8).Foreground(lipgloss.Color("#809bd1")).Render(m.MetaData.Album),
+	))
+
+	fmt.Print(image.ClearImage()) // Clear image when resize, kitty render image over prev Size
 }
 
 // Default Player UI
@@ -112,8 +113,8 @@ func DefaultPlayerUi(songinfo SongInfo) playerUIModel {
 
 	prog := progress.New(progress.WithScaledGradient("#874BFD", "#4b57fd"))
 	prog.Width = 24
-	prog.Empty = '-'
-	prog.Full = '▬'
+	prog.Empty = '━'
+	prog.Full = '━'
 	prog.ShowPercentage = false
 
 	model := playerUIModel{
