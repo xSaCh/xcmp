@@ -14,6 +14,7 @@ import (
 
 // New Duration from starting point
 type PlaybackUpdate float32
+type ChangeSong models.SongInfo
 
 type playerUIModel struct {
 	MainBox         lipgloss.Style
@@ -25,12 +26,16 @@ type playerUIModel struct {
 	currentDuration float32
 	imgStr          string
 	progressPadding string
+	width           int
+	height          int
 }
 
 func (m playerUIModel) Init() tea.Cmd {
 	physicalWidth, physicalHeight, _ := term.GetSize(int(os.Stdout.Fd()))
 
-	m.updateSize(physicalWidth, physicalHeight)
+	m.width = physicalWidth
+	m.height = physicalHeight
+	m.updateSize()
 	return nil
 }
 
@@ -41,14 +46,21 @@ func (m playerUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "esc", "ctrl+c":
 			return m, tea.Quit
 		}
+
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
+		m.updateSize()
+		return m, nil
+
 	case PlaybackUpdate:
 		m.currentDuration = float32(msg)
 		return m, nil
 
-	case tea.WindowSizeMsg:
-		m.updateSize(msg.Width, msg.Height)
+	case ChangeSong:
+		m.MetaData = models.SongInfo(msg)
+		m.updateSize()
 		return m, nil
-
 	}
 
 	return m, nil
@@ -70,13 +82,8 @@ func (m playerUIModel) View() string {
 	))
 }
 
-func (m *playerUIModel) SetInfo(newMetaData models.SongInfo) {
-	m.MetaData = newMetaData
-
-}
-
-func (m *playerUIModel) updateSize(width, height int) {
-	m.MainBox = m.MainBox.Width(width - 2).Height(height - 2).MaxHeight(height).MaxWidth(width)
+func (m *playerUIModel) updateSize() {
+	m.MainBox = m.MainBox.Width(m.width - 2).Height(m.height - 2).MaxHeight(m.height).MaxWidth(m.width)
 	contentHeight := float32(m.MainBox.GetHeight() - m.MainBox.GetPaddingTop() - m.MainBox.GetPaddingBottom())
 
 	m.AlbumArt = m.AlbumArt.Width(int(contentHeight * 2)).Height(int(contentHeight))
@@ -87,9 +94,9 @@ func (m *playerUIModel) updateSize(width, height int) {
 	m.ArtistInfoStyle = m.ArtistInfoStyle.SetString(lipgloss.JoinVertical(
 		lipgloss.Top,
 
-		lipgloss.NewStyle().MaxWidth(width-2-lipgloss.Width(m.AlbumArt.Render())-8).Foreground(lipgloss.Color("#FFFFFF")).PaddingBottom(1).Render(m.MetaData.Title),
-		lipgloss.NewStyle().MaxWidth(width-2-lipgloss.Width(m.AlbumArt.Render())-8).Foreground(lipgloss.Color("#777777")).Render(m.MetaData.Artist),
-		lipgloss.NewStyle().MaxWidth(width-2-lipgloss.Width(m.AlbumArt.Render())-8).Foreground(lipgloss.Color("#809bd1")).Render(m.MetaData.Album),
+		lipgloss.NewStyle().MaxWidth(m.width-2-lipgloss.Width(m.AlbumArt.Render())-8).Foreground(lipgloss.Color("#FFFFFF")).PaddingBottom(1).Render(m.MetaData.Title),
+		lipgloss.NewStyle().MaxWidth(m.width-2-lipgloss.Width(m.AlbumArt.Render())-8).Foreground(lipgloss.Color("#777777")).Render(m.MetaData.Artist),
+		lipgloss.NewStyle().MaxWidth(m.width-2-lipgloss.Width(m.AlbumArt.Render())-8).Foreground(lipgloss.Color("#809bd1")).Render(m.MetaData.Album),
 	))
 
 	fmt.Print(image.ClearImage()) // Clear image when resize, kitty render image over prev Size
@@ -115,8 +122,8 @@ func DefaultPlayerUi(songInfo models.SongInfo) playerUIModel {
 		ProgressBar:     prog,
 		ArtistInfoStyle: info,
 		AlbumArt:        lipgloss.NewStyle(),
+		MetaData:        songInfo,
 	}
-	model.SetInfo(songInfo)
 	return model
 }
 

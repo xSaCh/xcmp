@@ -55,7 +55,7 @@ func GetSongInfoFromMprisPlayer(p *mpris.Player) models.SongInfo {
 	} else {
 		duration = int64(vl.(int64)) / int64(time.Millisecond)
 	}
-
+	_ = url
 	//Assuming url is http url
 	resp, err := http.Get(url)
 	if err == nil && resp.StatusCode == 200 {
