@@ -22,6 +22,10 @@ github.com/dolmen-go/kittyimg v0.0.0-20220904140504-22f6493b700f h1:kei70IBuJLGr
 github.com/dolmen-go/kittyimg v0.0.0-20220904140504-22f6493b700f/go.mod h1:Bx/aNirksPWCgrgQ23kkHBXJLNIypTl9uLzmcKMrKnY=
 github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f h1:Y/CXytFA4m6baUTXGLOoWe4PQhGxaX0KpnayAqC48p4=
 github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f/go.mod h1:vw97MGsxSvLiUE2X8qFplwetxpGLQrlU1Q9AUEIzCaM=
+github.com/godbus/dbus/v5 v5.1.0 h1:4KLkAxT3aOY8Li4FRJe/KvhoNFFxo0m6fNuFUO8QJUk=
+github.com/godbus/dbus/v5 v5.1.0/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
+github.com/leberKleber/go-mpris v1.1.0 h1:bHAnmUjVoxAs4uMHH9lfQ8bOm284UWtI7JhLvkiF7O8=
+github.com/leberKleber/go-mpris v1.1.0/go.mod h1:OwKywFZwFGC0p/8xBUTUXMIFZy0Rq/7C6EayfeASTA0=
 github.com/lucasb-eyer/go-colorful v1.2.0 h1:1nnpGOrhyZZuNyfu1QjKiUICQ74+3FNCN69Aj6K7nkY=
 github.com/lucasb-eyer/go-colorful v1.2.0/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i7ruzyGqttikkLy0=
 github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
