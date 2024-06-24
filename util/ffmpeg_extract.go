@@ -48,10 +48,10 @@ func GetAlbumArtPath(filePath string) (string, error) {
 	}
 
 	tempFile := "album_art.jpg"
-	extractCmd := exec.Command("ffmpeg", "-i", filePath, "-an", "-vcodec", "copy", tempFile)
+	extractCmd := exec.Command("ffmpeg", "-i", filePath, "-an", "-vcodec", "copy", tempFile, "-y")
 	err = extractCmd.Run()
 	if err != nil {
-		return "", fmt.Errorf("error running ffmpeg to extract album art")
+		return "", fmt.Errorf("error running ffmpeg to extract album art %v", filePath)
 	}
 
 	return tempFile, nil

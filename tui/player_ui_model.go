@@ -8,16 +8,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/xSaCh/xcmp/image"
+	"github.com/xSaCh/xcmp/models"
 	"golang.org/x/term"
 )
-
-type SongInfo struct {
-	Title    string
-	Artist   string
-	Album    string
-	Duration float32 // In Seconds
-	AlbumArt string
-}
 
 // New Duration from starting point
 type PlaybackUpdate float32
@@ -27,7 +20,7 @@ type playerUIModel struct {
 	ProgressBar     progress.Model
 	AlbumArt        lipgloss.Style
 	ArtistInfoStyle lipgloss.Style
-	MetaData        SongInfo
+	MetaData        models.SongInfo
 
 	currentDuration float32
 	imgStr          string
@@ -77,7 +70,7 @@ func (m playerUIModel) View() string {
 	))
 }
 
-func (m *playerUIModel) SetInfo(newMetaData SongInfo) {
+func (m *playerUIModel) SetInfo(newMetaData models.SongInfo) {
 	m.MetaData = newMetaData
 
 }
@@ -103,7 +96,7 @@ func (m *playerUIModel) updateSize(width, height int) {
 }
 
 // Default Player UI
-func DefaultPlayerUi(songinfo SongInfo) playerUIModel {
+func DefaultPlayerUi(songInfo models.SongInfo) playerUIModel {
 	mainBox := lipgloss.NewStyle().
 		Padding(1, 2, 1, 2).
 		Border(lipgloss.RoundedBorder()).
@@ -123,7 +116,7 @@ func DefaultPlayerUi(songinfo SongInfo) playerUIModel {
 		ArtistInfoStyle: info,
 		AlbumArt:        lipgloss.NewStyle(),
 	}
-	model.SetInfo(songinfo)
+	model.SetInfo(songInfo)
 	return model
 }
 
