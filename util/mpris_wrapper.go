@@ -28,8 +28,10 @@ func GetMprisPlayers() ([]string, error) {
 	}
 
 	var filteredName []string
+	const prefixLen = len("org.mpris.MediaPlayer2.")
 	for _, n := range names {
 		if strings.HasPrefix(n, "org.mpris.MediaPlayer2.") {
+			// filteredName = append(filteredName, n[prefixLen:])
 			filteredName = append(filteredName, n)
 		}
 	}
@@ -41,6 +43,8 @@ func GetSongInfoFromMprisPlayer(p *mpris.Player) models.SongInfo {
 
 	metaData, _ := p.Metadata()
 
+	// fmt.Printf("AD: %#v %#v", metaData, e)
+
 	title, _ := metaData.XESAMTitle()
 	artist, _ := metaData.XESAMArtist()
 	album, _ := metaData.XESAMAlbum()
@@ -49,12 +53,20 @@ func GetSongInfoFromMprisPlayer(p *mpris.Player) models.SongInfo {
 
 	var duration int64
 	var file = ""
+	artistName := ""
 
-	if fmt.Sprintf("%T", vl) == "uint64" {
+	if len(artist) > 0 {
+		artistName = artist[0]
+	}
+
+	if vl == nil {
+		duration = -1
+	} else if fmt.Sprintf("%T", vl) == "uint64" {
 		duration = int64(vl.(uint64)) / int64(time.Millisecond)
 	} else {
 		duration = int64(vl.(int64)) / int64(time.Millisecond)
 	}
+
 	_ = url
 	//Assuming url is http url
 	resp, err := http.Get(url)
@@ -71,7 +83,7 @@ func GetSongInfoFromMprisPlayer(p *mpris.Player) models.SongInfo {
 
 	return models.SongInfo{
 		Title:    title,
-		Artist:   artist[0],
+		Artist:   artistName,
 		Album:    album,
 		Duration: float32(duration),
 		AlbumArt: file,

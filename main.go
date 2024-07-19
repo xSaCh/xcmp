@@ -1,9 +1,11 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
+	"slices"
 	"strconv"
 	"time"
 
@@ -62,18 +64,55 @@ func ffmpegMain() {
 
 }
 
+var (
+	isListPl = false
+	player   string
+	args     = []string{}
+)
+
 func main() {
+	flag.BoolVar(&isListPl, "list-player", false, "List avaliable Mpris Players")
+	flag.StringVar(&player, "player", "", "Specify Available Mpris Player\nGet Avaliable players name using 'list-player'")
+	flag.Parse()
+	args = flag.Args()
 
-	players, _ := util.GetMprisPlayers()
+	// if len(args) < 1 {
+	// 	flag.PrintDefaults()
+	// 	return
+	// }
+	const prefixLen = len("org.mpris.MediaPlayer2.")
+	pls, _ := util.GetMprisPlayers()
+	if isListPl {
 
-	if len(players) == 0 {
-		fmt.Println("Empty Players")
-		return
+		for _, pl := range pls {
+			fmt.Printf("%s\n", pl[prefixLen:])
+		}
 	}
 
-	pl, _ := mpris.NewPlayer(players[1])
+	selectedPlayer := ""
+	if player != "" {
+		i := slices.IndexFunc(pls, func(pName string) bool {
+			return pName[prefixLen:] == player
+		})
+		if i != -1 {
+			selectedPlayer = pls[i]
+		} else {
+			selectedPlayer = pls[0]
+		}
 
-	info := util.GetSongInfoFromMprisPlayer(&pl)
+		player, err := mpris.NewPlayer(selectedPlayer)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		mainMpris(&player)
+	}
+}
+
+func mainMpris(pl *mpris.Player) {
+
+	info := util.GetSongInfoFromMprisPlayer(pl)
 
 	p := tea.NewProgram(tui.DefaultPlayerUi(info),
 		tea.WithAltScreen())
@@ -93,7 +132,7 @@ func main() {
 				prevTitle = curTitle
 				prevMeta = curMeta
 
-				newInfo := util.GetSongInfoFromMprisPlayer(&pl)
+				newInfo := util.GetSongInfoFromMprisPlayer(pl)
 
 				p.Send(tui.ChangeSong(newInfo))
 			}
